@@ -1,0 +1,6 @@
+# simulation output and figures (regenerate with the scripts)
+results/
+figures/
+csim/sdiff_scan
+Manifest.toml
+.DS_Store
