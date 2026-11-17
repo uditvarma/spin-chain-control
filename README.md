@@ -9,7 +9,14 @@ $$
 $$
 
 The order parameter is the activity $S_{\rm diff} = \frac1L\sum_j \lvert\mathbf S_j - \mathbf S^0_j\rvert$
-(0 when the chain is captured by the helix). Linear stability of the helix gives the threshold
+(0 when the chain is captured by the helix). The intermediate cone phase is detected by the long-range tilt correlator
+
+$$
+G_x = \frac{1}{L(b+1)}\sum_j\sum_{r=b}^{2b} S^x_j\,S^x_{j+r},
+$$
+
+with $b = 64$ much larger than the correlation length $\xi$ of the chaotic phase.
+$G_x$ is exactly 0 on the helix and of order $e^{-b/\xi}\approx 0$ in the chaotic phase. Inside cone domains it equals $s_+^2$, the squared tilt of the cone. Linear stability of the helix gives the threshold
 $a_c^{\rm lin}(N) = e^{-\tau\max_k\lambda(k,N)}$ with $\lambda(k,N)^2 = -4\cos q\,(\cos k-\cos q)(\cos k-1)$, $q = 2\pi/N$.
 
 ## Layout
@@ -23,6 +30,8 @@ csim/sdiff_scan.c      fast C kernel for the S_diff scans (same integrator, cont
 scripts/
   phase_scan.sh        (N, a) scan of the steady-state S_diff            -> results/sdiff_phase_L2520/
   phase_diagram.jl     heatmap of S_diff in (N, a) with a_c^lin(N)       -> figures/phase_Sdiff_N3-20.pdf
+  order_params_scan.jl (N, a) scan of S_diff, G_x and λ (Julia)          -> results/order_params_L1200/
+  order_params_diagram.jl  heatmaps of G_x, λ, S_diff                    -> figures/order_param_{Gx,lambda,Sdiff}_N3-20.pdf
   spacetime_gifs.jl    space-time GIFs of |S_j(t) - S0_j| across a       -> figures/spacetime_N*_L*.gif
   Project.toml         plotting environment (Plots, LaTeXStrings)
 ```
@@ -34,7 +43,8 @@ scripts/
   the scan runs one process per core.
 
 ```bash
-julia --project=scripts -e 'using Pkg; Pkg.instantiate()'
+julia --project -e 'using Pkg; Pkg.instantiate()'           # the package (simulations)
+julia --project=scripts -e 'using Pkg; Pkg.instantiate()'   # plotting environment
 ```
 
 ## Phase diagram
@@ -52,6 +62,20 @@ julia --project=scripts scripts/phase_diagram.jl        # -> figures/phase_Sdiff
   (about 1–2 h on 10 cores). The scan is resumable, and the parameters can be overridden with environment
   variables (see the header of `phase_scan.sh`), e.g. a quick test:
   `NMIN=4 NMAX=8 NA=21 L0=240 T=2000 NS=8 scripts/phase_scan.sh results/test`.
+
+## Cone phase: G_x and Lyapunov exponent
+
+```bash
+julia -t auto --project scripts/order_params_scan.jl          # N = 3..20, a = 0:0.01:1, L ≈ 1200, 16 samples, T = 6000, b = 64
+julia --project=scripts scripts/order_params_diagram.jl     # -> figures/order_param_{Gx,lambda,Sdiff}_N3-20.pdf
+```
+
+* Each sample is averaged over the last 25 % of the steps. $\lambda$ is the leading Lyapunov exponent from the exact
+  tangent dynamics. The colour is the mean over 16 random initial states.
+* The figures show two curves: $a_c^{\rm lin}(N)$ (orange) and the cone saddle-node $a_{\rm sn}(N) = 1/(1+2G_{\max})$
+  (dashed), where $G_{\max} = \max_{0\le s\le 1}\sqrt{1-s^2}\,\sin(\kappa s/2)$ and $\kappa = 2\tau(1-\cos 2\pi/N)$.
+* Optional arguments: `OUTDIR L0 T nsamples Nmin Nmax b`. The scan takes about 4 core-hours (about 25 min on 10 threads)
+  and can be resumed, since each finished N is skipped.
 
 ## Space-time GIFs
 
