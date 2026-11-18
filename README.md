@@ -32,6 +32,9 @@ scripts/
   phase_diagram.jl     heatmap of S_diff in (N, a) with a_c^lin(N)       -> figures/phase_Sdiff_N3-20.pdf
   order_params_scan.jl (N, a) scan of S_diff, G_x and λ (Julia)          -> results/order_params_L1200/
   order_params_diagram.jl  heatmaps of G_x, λ, S_diff                    -> figures/order_param_{Gx,lambda,Sdiff}_N3-20.pdf
+paper/                 the phase diagrams as they appear in the paper (output of the two diagram scripts):
+                       order_param_{Sdiff,Gx,lambda}_N3-20_clean.pdf (L ≈ 1200), order_params_N3-20_clean.pdf
+                       (3 panels), phase_Sdiff_N3-20.pdf (L ≈ 2520)
   spacetime_gifs.jl    space-time GIFs of |S_j(t) - S0_j| across a       -> figures/spacetime_N*_L*.gif
   Project.toml         plotting environment (Plots, LaTeXStrings)
 ```
