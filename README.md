@@ -29,14 +29,14 @@ csim/sdiff_scan.c      fast C kernel for the S_diff scans (same integrator, cont
                        convention as the Julia package); `make -C csim`
 scripts/
   phase_scan.sh        (N, a) scan of the steady-state S_diff            -> results/sdiff_phase_L2520/
-  phase_diagram.jl     heatmap of S_diff in (N, a) with a_c^lin(N)       -> figures/phase_Sdiff_N3-20.pdf
   order_params_scan.jl (N, a) scan of S_diff, G_x and λ (Julia)          -> results/order_params_L1200/
-  order_params_diagram.jl  heatmaps of G_x, λ, S_diff                    -> figures/order_param_{Gx,lambda,Sdiff}_N3-20.pdf
   spacetime_gifs.jl    space-time GIFs of |S_j(t) - S0_j| across a       -> figures/spacetime_N*_L*.gif
   Project.toml         plotting environment (Plots, LaTeXStrings)
-paper/                 the phase diagrams as they appear in the paper (output of the two diagram scripts):
-                       order_param_{Sdiff,Gx,lambda}_N3-20_clean.pdf (L ≈ 1200), order_params_N3-20_clean.pdf
-                       (3 panels), phase_Sdiff_N3-20.pdf (L ≈ 2520)
+paper/                 the phase diagrams as they appear in the paper and the scripts that draw them
+  phase_diagram.jl     S_diff in (N, a) from phase_scan.sh               -> phase_Sdiff_N3-20.pdf (L ≈ 2520)
+  order_params_diagram.jl  G_x, λ, S_diff from order_params_scan.jl      -> order_param_{Sdiff,Gx,lambda}_N3-20_clean.pdf,
+                       order_params_N3-20_clean.pdf (3 panels)        (L ≈ 1200)
+  (run with julia --project=scripts; figures go to figures/ unless OUTDIR is given)
 ```
 
 ## Requirements
@@ -54,7 +54,7 @@ julia --project=scripts -e 'using Pkg; Pkg.instantiate()'   # plotting environme
 
 ```bash
 scripts/phase_scan.sh                                   # N = 3..20, a = 0:0.01:1, L ≈ 2520, 32 samples, T = 20000
-julia --project=scripts scripts/phase_diagram.jl        # -> figures/phase_Sdiff_N3-20.pdf
+julia --project=scripts paper/phase_diagram.jl          # -> figures/phase_Sdiff_N3-20.pdf
 ```
 
 * $L$ is the largest multiple of $\mathrm{lcm}(2,N)$ that is $\le 2520$ (the helix must close on the ring).
@@ -70,7 +70,7 @@ julia --project=scripts scripts/phase_diagram.jl        # -> figures/phase_Sdiff
 
 ```bash
 julia -t auto --project scripts/order_params_scan.jl          # N = 3..20, a = 0:0.01:1, L ≈ 1200, 16 samples, T = 6000, b = 64
-julia --project=scripts scripts/order_params_diagram.jl     # -> figures/order_param_{Gx,lambda,Sdiff}_N3-20.pdf
+julia --project=scripts paper/order_params_diagram.jl       # -> figures/order_param_{Gx,lambda,Sdiff}_N3-20_clean.pdf
 ```
 
 * Each sample is averaged over the last 25 % of the steps. $\lambda$ is the leading Lyapunov exponent from the exact

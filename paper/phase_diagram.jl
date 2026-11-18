@@ -2,12 +2,14 @@
 #
 # Phase diagram in (N, a): heatmap of the steady-state S_diff with the linear threshold a_c^lin(N).
 #
-#   julia --project=scripts scripts/phase_diagram.jl [SCANDIR] [OUTDIR]
-#       SCANDIR  output of scripts/phase_scan.sh   (default results/sdiff_phase_L2520)
+#   julia --project=scripts paper/phase_diagram.jl [SCANDIR] [OUTDIR] [NMIN]
+#       SCANDIR  output of scripts/phase_scan.sh   (default results/sdiff_phase_L2520; only read)
 #       OUTDIR   where the figure goes             (default figures)
+#       NMIN     smallest N drawn                  (default 3)
 #
 # Colour: sample mean over random initial states of S_diff = (1/L) Σ_j |S_j - S0_j|, averaged
-# over the last 25 % of the steps. Also writes SCANDIR/summary.csv (N, L, a, ns, Sdiff, Sdiff_sem).
+# over the last 25 % of the steps. Also writes OUTDIR/phase_Sdiff_summary.csv
+# (N, L, a, ns, Sdiff, Sdiff_sem).
 #
 # Analytic curve: λ(k,N)² = -4 cos q (cos k - cos q)(cos k - 1), q = 2π/N, a_c^lin = exp(-τ max_k λ).
 # Line: continuous N ≥ 5 (guide); markers: lattice momenta k = 2πm/L for the simulated L.
@@ -20,13 +22,14 @@ default(framestyle = :box, grid = false, guidefontsize = 12, tickfontsize = 9,
 const ROOT = normpath(joinpath(@__DIR__, ".."))
 scandir = length(ARGS) >= 1 ? ARGS[1] : joinpath(ROOT, "results", "sdiff_phase_L2520")
 outdir  = length(ARGS) >= 2 ? ARGS[2] : joinpath(ROOT, "figures")
+nmin    = length(ARGS) >= 3 ? parse(Int, ARGS[3]) : 3
 mkpath(outdir)
 
 # ---- aggregate the per-sample CSVs of the C scan: (N, a) -> mean S_diff --------------------------
 rows = NamedTuple[]
 for d in sort(readdir(scandir))
     m = match(r"^N(\d+)$", d); m === nothing && continue
-    N = parse(Int, m[1])
+    N = parse(Int, m[1]); N < nmin && continue
     for f in sort(readdir(joinpath(scandir, d)))
         endswith(f, "_samples.csv") || continue
         ls = readlines(joinpath(scandir, d, f)); h = Dict(k => i for (i, k) in enumerate(split(ls[1], ',')))
@@ -37,7 +40,7 @@ for d in sort(readdir(scandir))
     end
 end
 isempty(rows) && error("no *_samples.csv under $scandir — run scripts/phase_scan.sh first")
-open(joinpath(scandir, "summary.csv"), "w") do io
+open(joinpath(outdir, "phase_Sdiff_summary.csv"), "w") do io
     println(io, "N,L,a,ns,Sdiff,Sdiff_sem")
     for r in rows
         @printf(io, "%d,%d,%.3f,%d,%.10g,%.6g\n", r.N, r.L, r.a, r.ns, r.Sdiff, r.Sdiff_sem)

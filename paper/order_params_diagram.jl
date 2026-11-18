@@ -3,11 +3,12 @@
 # Phase diagrams in (N, a) of the long-range tilt correlator G_x and the Lyapunov exponent λ
 # (and S_diff) from the output of scripts/order_params_scan.jl.
 #
-#   julia --project=scripts scripts/order_params_diagram.jl [SCANDIR] [OUTDIR]
+#   julia --project=scripts paper/order_params_diagram.jl [SCANDIR] [OUTDIR]
 #       SCANDIR  default results/order_params_L1200
 #       OUTDIR   default figures
 #
-# Writes OUTDIR/order_param_{Gx,lambda,Sdiff}_N3-20.pdf and the 3-panel order_params_N3-20.pdf.
+# Writes OUTDIR/order_param_{Gx,lambda,Sdiff}_N3-20_clean.pdf and the 3-panel order_params_N3-20_clean.pdf
+# (the files in paper/; "clean" = without the front-race points used in the working notes).
 # Colour: sample mean of the per-sample steady-state values.
 #
 #   G_x = 1/(L(b+1)) Σ_j Σ_{r=b}^{2b} S^x_j S^x_{j+r}      (b = 64 by default)
@@ -102,10 +103,10 @@ tag = "N$(first(NS))-$(last(NS))"
 for (key, name, kw) in panels
     p = oppanel(key; kw...)
     plot!(p; size = (620, 480), dpi = 200, left_margin = 3Plots.mm, bottom_margin = 3Plots.mm, right_margin = 4Plots.mm)
-    f = joinpath(outdir, "order_param_$(name)_$(tag).pdf"); savefig(p, f); println("wrote ", f)
+    f = joinpath(outdir, "order_param_$(name)_$(tag)_clean.pdf"); savefig(p, f); println("wrote ", f)
 end
 P = plot(oppanel("Sdiff"; panels[3][3]...), oppanel("Gxr"; panels[1][3]..., legend = false),
          oppanel("lam"; panels[2][3]..., legend = false);
          layout = (1, 3), size = (1500, 470), dpi = 200, xtickfontsize = 6,
          left_margin = 5Plots.mm, bottom_margin = 6Plots.mm, right_margin = 3Plots.mm)
-f = joinpath(outdir, "order_params_$(tag).pdf"); savefig(P, f); println("wrote ", f)
+f = joinpath(outdir, "order_params_$(tag)_clean.pdf"); savefig(P, f); println("wrote ", f)
